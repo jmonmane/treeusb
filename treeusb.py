@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 import sys
 import os
-print("Hello")
+import maker
+import pprint
+
 platform = sys.platform
 global isLinux
 isLinux = False
@@ -15,35 +17,49 @@ def getVersion():
 	if platform.startswith('linux'):
 		isLinux = True
 		return
-	if platform == 'darwin':
+	elif platform == 'darwin':
 		isMac = True
 		return
-	else:
+	elif platform == 'win32':
 		isWin = True
-	return
+		return
+	else:
+		return("Can't Get System Version")
+
+def doTheWalk(mountedRoot):
+	directories = []
+	dirCount = 0
+	filenames = []
+	fileCount = 0
+	for root, dirs, files in os.walk(mountedRoot):
+		if dirs:
+			dirCount += 1
+			directories.append(str(dirs))
+		elif files:
+			fileCount += 1
+			filenames.append(str(files))
+
+	print(directories)
+	#print("%s contains %d Directories and %d Files" % (mountedRoot, dirCount, fileCount))
+	#print(mountedRoot)
+	#for d in directories: print("%s" % str(d))
+	#for f in filenames: print("%s" % str(f))
 
 getVersion()
 
-while isLinux:
-	print("Code not implemented... Exiting")
-	mountedRoot = '/dev/'
-	sys.exit(1)
+if isLinux:
+	username = os.getenv('USER')
+	mountedRoot = '/media/' + username
+	contents = os.listdir(mountedRoot)
+	print("Which drive to enumerate: \n")
+	num = input(str(list(enumerate(os.listdir(mountedRoot)))) + '\n\n')
+	newPath = mountedRoot + '/' + contents[int(num)]
+	print("\n Enumerating " + contents[int(num)] + ' ... ')
+	print(newPath)
+	#doTheWalk(newPath)
+	print((maker.FileTreeMaker().make(newPath)))
 
 while isMac:
 	mountedRoot = '/Volumes/'
 
-directories = []
-dirCount = 0
-filenames = []
-fileCount = 0
 # rootPath = mountedRoot.split('/')
-
-def doTheWalk(mountedRoot):
-	for root, dirs, files in os.walk(mountedRoot):
-			if dirs:
-				dirCount += 1
-				directories.append(str(dirs))
-			elif files:
-				fileCount += 1
-				filenames.append(str(files))
-			print("%s contains %d Directories and %d Files" % rootPath, dirCount, fileCount)
